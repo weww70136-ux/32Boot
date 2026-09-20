@@ -1,6 +1,3 @@
-;nasm -f bin boot1.asm -o boot1.bin
-;qemu-system-i386 -fda boot1.bin 
-
 [org 0x7c00]
 
 [bits 16]
@@ -11,62 +8,63 @@ clear_cs:
 
 	cli
 
-	xor ax, ax
+	xor bx, bx
 
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
+	mov ds, bx
+	mov es, bx
+	mov fs, bx
+	mov gs, bx
+	mov ss, bx
 
 	mov sp, 0x7c00
 
-	lgdt[gdtdescriptor]
+	lgdt[gdt_descriptor]
 
-	mov eax, cr0
-	or eax, 0x1
-	mov cr0, eax
+	mov ebx, cr0
+	or ebx, 0x1
+	mov cr0, ebx
 
-	jmp dword (gdtcode - gdtstart):init_pm
+	jmp dword (gdt_code - gdt_start):init_pm
 
 [bits 32]
 init_pm:
-	mov ax, (gdtdata - gdtstart)
+	mov bx, (gdt_data - gdt_start)
 
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	mov ss, ax
+	mov ds, bx
+	mov es, bx
+	mov fs, bx
+	mov gs, bx
+	mov ss, bx
 
-	mov esp, 0x9000
+	mov esp, 0x90000
 
-	mov esi, msg
-	mov edi, 0xb8000
+	mov edi, msg
+	mov esi, 0xB8000
 
 loop:
-	mov al, [esi]
-	cmp al, 0
+	mov ah, [edi]
+	cmp ah, 0
 	je hang
 
-	mov [edi], al
-	mov byte [edi+1], 0x0D
+	mov [esi], ah
+	mov byte [esi+1], 0x0D
 
-	add esi, 1
-	add edi, 2
+	add edi, 1
+	add esi, 2
 
 	jmp loop
 
 	hang:
+		cli
 		hlt
 		jmp hang
 
-msg: db "I DONT KNOW WHAT SHOULD I SAY HERE.", 0
+msg: db "QNIX...", 0
 
-gdtstart:
+gdt_start:
 	dq 0x0
 
-gdtcode:
+gdt_code:
 	dw 0xffff
 	dw 0x0000
 	db 0x00
@@ -74,7 +72,7 @@ gdtcode:
 	db 11001111b
 	db 0x00
 
-gdtdata:
+gdt_data:
 	dw 0xffff
 	dw 0x0000
 	db 0x00
@@ -82,11 +80,11 @@ gdtdata:
 	db 11001111b
 	db 0x00
 
-gdtend:
+gdt_end:
 
-gdtdescriptor:
-	dw gdtend - gdtstart -1
-	dd gdtstart
+gdt_descriptor:
+	dw gdt_end - gdt_start -1
+	dd gdt_start
 
 
 times 510 - ($-$$) db 0

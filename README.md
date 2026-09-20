@@ -1,10 +1,7 @@
-Hi everyone,
-I am a 13-year-old who felt extremely bored, so I decided to learn programming. This is just a simple project, and I would love to hear your feedback—whether positive or negative!
+Hi.
+This is just a small update for the bootloader.
 
 ---
-
-## About The Project
-An experimental, custom x86 operating system bootloader built completely from scratch in Assembly.
 
 ## Features
 - 16-bit Real Mode initialization.
